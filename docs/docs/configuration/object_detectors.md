@@ -33,6 +33,7 @@ Frigate supports multiple different detectors that work on different types of ha
 **Apple Silicon**
 
 - [Apple Silicon](#apple-silicon-detector): Apple Silicon can run on M1 and newer Apple Silicon devices.
+- <CommunityBadge /> [Apple Neural Engine (lighter)](#apple-neural-engine-lighter): runs ONNX models on the Neural Engine of M1 and newer Macs from inside the container, when Frigate runs under the lighter container runtime.
 
 **Intel**
 
@@ -784,3 +785,28 @@ The AXEngine detector downloads its default model from HuggingFace on first star
 When configuring the AXEngine detector, you have to specify the model name.
 
 <ModelConfigDropdown detectorTitle="AXEngine" models={objectDetectorsModels.axengine.models} />
+
+## Apple Neural Engine (lighter)
+
+[lighter](https://github.com/fieldwork-ai/lighter) is an open-source container runtime for macOS that can give a container access to the Mac's Neural Engine. A container started with the `lighter.sh/ane` device gets a library that runs ONNX models on the Neural Engine through ONNX Runtime, so Frigate's detector uses the Neural Engine with nothing else to install. It works on M1 and newer Macs.
+
+The detector runs the same ONNX models as the [ONNX detector](#onnx), with the same model types and post-processing. It uses the ONNX Runtime Frigate already ships.
+
+### Setup {#setup-lighter-ane}
+
+1. Install lighter 0.9.2 or newer and start it with `lighter start`.
+2. Give the Frigate container the Neural Engine device. With Docker Compose:
+
+```yaml
+services:
+  frigate:
+    image: ghcr.io/blakeblackshear/frigate:stable-standard-arm64
+    devices:
+      - lighter.sh/ane=all
+```
+
+Or with `docker run`, add `--device lighter.sh/ane=all`.
+
+### Configuration {#configuration-lighter-ane}
+
+<ModelConfigDropdown detectorTitle="Apple Neural Engine (lighter)" models={objectDetectorsModels.lighterAne.models} />
